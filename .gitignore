@@ -1,3 +1,4 @@
+# Ya incluido
 *.iml
 .gradle
 /local.properties
@@ -13,3 +14,15 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Recomendado agregar
+# Android test outputs
+test-output/
+
+# Logs y dumps
+*.log
+*.hprof
+
+# Archivos generados por compiladores o herramientas
+*.ap_
+
