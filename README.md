@@ -20,6 +20,7 @@ forma autodidacta mis conocimientos adquiridos en desarrollo Android.
 ## Estado del proyecto
 
 ✅ Versión estable inicial funcionando con ejemplos cargados automáticamente en la base de datos.
+✅ El usuario puede agregar lugares turisticos manualmente desde un formulario.
 
 ---
 
