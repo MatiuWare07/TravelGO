@@ -60,11 +60,25 @@ dependencies {
 
     // ✅ Room: Runtime + KTX + kapt
     implementation(libs.androidx.room.runtime.android)
-    implementation("androidx.room:room-ktx:2.6.1") // si estás usando coroutines
-    kapt(libs.androidx.room.compiler) // 👈 ¡clave!
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt(libs.androidx.room.compiler)
+
+    // ✅ Google Maps y Location Services
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.material:material:1.9.0")
+
+    // ✅ OpenStreetMap
+    implementation("org.osmdroid:osmdroid-android:6.1.16")
+
+    // ✅ Glide (para cargar imágenes sin pedir permisos)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+
+
 

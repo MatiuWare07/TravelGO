@@ -2,6 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permisos para OpenStreetMap / osmdroid -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,9 +22,18 @@
         android:theme="@style/Theme.TravelGO"
         tools:targetApi="31">
 
-        <!-- MainActivity es la pantalla principal de la app -->
+        <!-- Configuración para osmdroid -->
+        <meta-data
+            android:name="org.osmdroid.config"
+            android:value="osmdroid_config" />
+
         <activity
-            android:name=".MainActivity"
+            android:name=".SelectLocationActivity"
+            android:exported="true" />
+
+        <!-- Pantalla principal -->
+        <activity
+            android:name=".MainMenuActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,12 +41,24 @@
             </intent-filter>
         </activity>
 
-        <!-- LugarDetalleActivity solo se abre desde MainActivity -->
+        <!-- Pantalla para agregar lugares -->
+        <activity
+            android:name=".AddLugarActivity"
+            android:exported="true" />
+
+        <!-- Lista de lugares -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
+
+        <!-- Detalle del lugar -->
         <activity
             android:name=".LugarDetalleActivity"
             android:exported="true" />
+
+        <meta-data android:name="osmdroid.basePath" android:value="osmdroid"/>
+        <meta-data android:name="osmdroid.cachePath" android:value="osmdroid/cache"/>
+
     </application>
-
-
 
 </manifest>

@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.example.travelgo.Adapter.LugarAdapter
 import com.example.travelgo.DataBase.AppDatabase
 import com.example.travelgo.DataBase.Entidades.LugarTuristico
@@ -20,6 +19,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: LugarAdapter
     private lateinit var db: AppDatabase
+    private val listaLugares = mutableListOf<LugarTuristico>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,18 +28,32 @@ class MainActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerViewLugares)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java,
-            "lugares-db"
-        )
-            .fallbackToDestructiveMigration() // 🧨 Importante para resetear la BD
-            .build()
+        db = AppDatabase.getInstance(applicationContext)
+
+        adapter = LugarAdapter(listaLugares) { lugar ->
+            val intent = Intent(this, LugarDetalleActivity::class.java).apply {
+                putExtra("nombre", lugar.nombre)
+                putExtra("descripcion", lugar.descripcion)
+                putExtra("categoria", lugar.categoria)
+                putExtra("latitud", lugar.latitud)
+                putExtra("longitud", lugar.longitud)
+                putExtra("imagenResId", lugar.imagenResId ?: -1)
+                putExtra("imagenUri", lugar.imagenUri)
+            }
+            startActivity(intent)
+        }
+
+        recyclerView.adapter = adapter
 
         lifecycleScope.launch {
             inicializarDatosSiVacio()
             cargarLugaresDesdeBD()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch { cargarLugaresDesdeBD() }
     }
 
     private suspend fun inicializarDatosSiVacio() {
@@ -84,19 +98,12 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "Lugares cargados: ${lugares.size}")
 
         runOnUiThread {
-            adapter = LugarAdapter(lugares) { lugar ->
-                val intent = Intent(this, LugarDetalleActivity::class.java).apply {
-                    putExtra("nombre", lugar.nombre)
-                    putExtra("descripcion", lugar.descripcion)
-                    putExtra("categoria", lugar.categoria)
-                    putExtra("latitud", lugar.latitud)
-                    putExtra("longitud", lugar.longitud)
-                    putExtra("imagenResId", lugar.imagenResId)
-                }
-                startActivity(intent)
-            }
-            recyclerView.adapter = adapter
+            listaLugares.clear()
+            listaLugares.addAll(lugares)
+            adapter.notifyDataSetChanged()
         }
     }
 }
+
+
 

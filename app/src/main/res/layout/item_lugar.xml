@@ -20,16 +20,36 @@
             android:scaleType="centerCrop"
             android:contentDescription="Imagen del lugar" />
 
-        <TextView
-            android:id="@+id/txtNombreItem"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="16dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:text="Nombre del lugar"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+            android:orientation="vertical"
+            android:layout_marginStart="16dp">
 
+            <TextView
+                android:id="@+id/txtNombreItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nombre del lugar"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtDescripcionItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Descripción del lugar"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnVerEnMapa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ver en mapa"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
