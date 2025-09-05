@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.travelgo.DataBase.AppDatabase
+import com.example.travelgo.DataBase.Entidades.Categoria
 import com.example.travelgo.DataBase.Entidades.LugarTuristico
 import kotlinx.coroutines.launch
 import java.io.File
@@ -16,8 +17,9 @@ import java.io.FileOutputStream
 class AddLugarActivity : AppCompatActivity() {
 
     private lateinit var etNombre: EditText
-    private lateinit var etCategoria: EditText
+    private lateinit var spCategoria: Spinner   // 👈 Spinner en lugar de EditText
     private lateinit var etDescripcion: EditText
+    private lateinit var etPais: EditText       // 👈 Agregar input para país
     private lateinit var imgPreview: ImageView
     private lateinit var btnSeleccionarImagen: Button
     private lateinit var tvCoordenadas: TextView
@@ -38,13 +40,25 @@ class AddLugarActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_lugar)
 
         etNombre = findViewById(R.id.etNombre)
-        etCategoria = findViewById(R.id.etCategoria)
+        spCategoria = findViewById(R.id.spCategoria)
         etDescripcion = findViewById(R.id.etDescripcion)
+        etPais = findViewById(R.id.etPais)
         imgPreview = findViewById(R.id.imgPreview)
         btnSeleccionarImagen = findViewById(R.id.btnSeleccionarImagen)
         tvCoordenadas = findViewById(R.id.tvCoordenadas)
         btnSeleccionarUbicacion = findViewById(R.id.btnSeleccionarUbicacion)
         btnGuardarLugar = findViewById(R.id.btnGuardarLugar)
+
+        // 🔹 SOLO mostrar Museo, Parque y Ciudad
+        val categoriasDisponibles = listOf("Museo", "Parque", "Ciudad")
+
+        spCategoria.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            categoriasDisponibles
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
 
         btnSeleccionarImagen.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
@@ -66,23 +80,12 @@ class AddLugarActivity : AppCompatActivity() {
             when (requestCode) {
                 REQUEST_IMAGE_PICK -> {
                     val uri = data?.data ?: return
-
-                    // Guardamos copia en almacenamiento interno
                     val file = File(filesDir, "img_${System.currentTimeMillis()}.jpg")
                     contentResolver.openInputStream(uri)?.use { input ->
-                        FileOutputStream(file).use { output ->
-                            input.copyTo(output)
-                        }
+                        FileOutputStream(file).use { output -> input.copyTo(output) }
                     }
-
-                    // Guardar la ruta absoluta (sin file://)
                     imagenUri = file.absolutePath
-
-                    // Mostrar preview con Glide
-                    Glide.with(this)
-                        .load(file) // 👈 Cargar directamente el File
-                        .placeholder(R.drawable.placeholder)
-                        .into(imgPreview)
+                    Glide.with(this).load(file).placeholder(R.drawable.placeholder).into(imgPreview)
                 }
 
                 REQUEST_LOCATION_PICK -> {
@@ -96,15 +99,13 @@ class AddLugarActivity : AppCompatActivity() {
 
     private fun guardarLugar() {
         val nombre = etNombre.text.toString().trim()
-        val categoria = etCategoria.text.toString().trim()
+        val categoriaSeleccionada = spCategoria.selectedItem.toString().uppercase()
+        val categoria = Categoria.valueOf(categoriaSeleccionada)
         val descripcion = etDescripcion.text.toString().trim()
+        val pais = etPais.text.toString().trim()
 
-        if (nombre.isBlank() || latitud == null || longitud == null) {
-            Toast.makeText(
-                this,
-                "Completa todos los campos y selecciona ubicación",
-                Toast.LENGTH_SHORT
-            ).show()
+        if (nombre.isBlank() || pais.isBlank() || latitud == null || longitud == null) {
+            Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -112,6 +113,7 @@ class AddLugarActivity : AppCompatActivity() {
             nombre = nombre,
             categoria = categoria,
             descripcion = descripcion,
+            pais = pais,
             latitud = latitud!!,
             longitud = longitud!!,
             imagenUri = imagenUri
@@ -120,7 +122,6 @@ class AddLugarActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(applicationContext)
             db.lugarTuristicoDao().insertarLugar(nuevoLugar)
-
             runOnUiThread {
                 Toast.makeText(this@AddLugarActivity, "Lugar guardado", Toast.LENGTH_SHORT).show()
                 finish()
@@ -128,16 +129,3 @@ class AddLugarActivity : AppCompatActivity() {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

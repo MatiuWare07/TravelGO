@@ -8,12 +8,14 @@ data class LugarTuristico(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val nombre: String,
     val descripcion: String,
-    val categoria: String,
+    val categoria: Categoria,
+    val pais: String,
     val latitud: Double,
     val longitud: Double,
-    val imagenResId: Int? = null, // Para imágenes de recursos (ejemplos)
-    val imagenUri: String? = null // Ruta absoluta de la imagen guardada
+    val imagenResId: Int? = null,
+    val imagenUri: String? = null
 )
+
 
 
 

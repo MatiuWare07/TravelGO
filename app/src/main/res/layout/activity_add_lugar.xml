@@ -17,13 +17,21 @@
             android:hint="Nombre del lugar"
             android:inputType="textPersonName" />
 
-        <!-- Categoría -->
-        <EditText
-            android:id="@+id/etCategoria"
+        <!-- Categoría (Spinner en lugar de EditText) -->
+        <Spinner
+            android:id="@+id/spCategoria"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Categoría"
-            android:inputType="text" />
+            android:layout_marginTop="8dp" />
+
+        <!-- País -->
+        <EditText
+            android:id="@+id/etPais"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="País"
+            android:inputType="textPersonName"
+            android:layout_marginTop="8dp" />
 
         <!-- Descripción -->
         <EditText
@@ -33,7 +41,8 @@
             android:hint="Descripción"
             android:inputType="textMultiLine"
             android:lines="3"
-            android:gravity="top" />
+            android:gravity="top"
+            android:layout_marginTop="8dp" />
 
         <!-- Imagen -->
         <ImageView
@@ -46,12 +55,12 @@
             android:background="#E0E0E0"
             android:contentDescription="Imagen seleccionada" />
 
-
         <Button
             android:id="@+id/btnSeleccionarImagen"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Seleccionar Imagen" />
+            android:text="Seleccionar Imagen"
+            android:layout_marginTop="8dp" />
 
         <!-- Coordenadas -->
         <TextView
@@ -65,7 +74,8 @@
             android:id="@+id/btnSeleccionarUbicacion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Seleccionar ubicación en mapa" />
+            android:text="Seleccionar ubicación en mapa"
+            android:layout_marginTop="4dp" />
 
         <!-- Botón Guardar -->
         <Button
@@ -77,5 +87,3 @@
 
     </LinearLayout>
 </ScrollView>
-
-

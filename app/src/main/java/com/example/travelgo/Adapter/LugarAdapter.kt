@@ -1,10 +1,8 @@
 package com.example.travelgo.Adapter
 
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -12,17 +10,24 @@ import com.bumptech.glide.Glide
 import com.example.travelgo.DataBase.Entidades.LugarTuristico
 import com.example.travelgo.R
 import java.io.File
+import android.widget.Filter
+import android.widget.Filterable
+import java.util.*
 
 class LugarAdapter(
-    private val lugares: List<LugarTuristico>,
-    private val onItemClick: (LugarTuristico) -> Unit
-) : RecyclerView.Adapter<LugarAdapter.LugarViewHolder>() {
+    private val lugares: MutableList<LugarTuristico>,
+    private val onItemClick: (LugarTuristico) -> Unit,
+    private val onDeleteClick: (LugarTuristico) -> Unit
+) : RecyclerView.Adapter<LugarAdapter.LugarViewHolder>(), Filterable {
+
+
+    private var lugaresFiltrados: MutableList<LugarTuristico> = ArrayList(lugares)
 
     inner class LugarViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val txtNombreItem: TextView = itemView.findViewById(R.id.txtNombreItem)
         val txtDescripcionItem: TextView = itemView.findViewById(R.id.txtDescripcionItem)
         val imgItem: ImageView = itemView.findViewById(R.id.imgItem)
-        val btnVerEnMapa: Button = itemView.findViewById(R.id.btnVerEnMapa)
+        val btnEliminar: ImageView = itemView.findViewById(R.id.btnEliminar)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LugarViewHolder {
@@ -31,12 +36,12 @@ class LugarAdapter(
     }
 
     override fun onBindViewHolder(holder: LugarViewHolder, position: Int) {
-        val lugar = lugares[position]
+        val lugar = lugaresFiltrados[position]
+
 
         holder.txtNombreItem.text = lugar.nombre
         holder.txtDescripcionItem.text = lugar.descripcion ?: ""
 
-        // Glide: prioridad a imagenUri (galería), si no imagenResId (ejemplos)
         if (!lugar.imagenUri.isNullOrEmpty()) {
             val file = File(lugar.imagenUri!!)
             Glide.with(holder.itemView.context)
@@ -54,21 +59,60 @@ class LugarAdapter(
         }
 
         holder.itemView.setOnClickListener { onItemClick(lugar) }
+        holder.itemView.setOnClickListener { onItemClick(lugar) }
+        holder.btnEliminar.setOnClickListener { onDeleteClick(lugar) }
 
-        holder.btnVerEnMapa.setOnClickListener {
-            val uri = android.net.Uri.parse("geo:${lugar.latitud},${lugar.longitud}?q=${android.net.Uri.encode(lugar.nombre)}")
-            val intent = Intent(Intent.ACTION_VIEW, uri)
-            intent.setPackage("com.google.android.apps.maps")
-            holder.itemView.context.startActivity(intent)
+    }
+
+    override fun getItemCount() = lugaresFiltrados.size
+
+    fun actualizarLista(nuevosLugares: List<LugarTuristico>) {
+        lugares.clear()
+        lugares.addAll(nuevosLugares)
+        lugaresFiltrados = ArrayList(lugares)
+        notifyDataSetChanged()
+    }
+
+    fun eliminarConAnimacion(lugar: LugarTuristico) {
+        val indexFiltrado = lugaresFiltrados.indexOf(lugar)
+        if (indexFiltrado != -1) {
+            lugaresFiltrados.removeAt(indexFiltrado)
+            notifyItemRemoved(indexFiltrado)
+        }
+
+        val indexOriginal = lugares.indexOf(lugar)
+        if (indexOriginal != -1) {
+            lugares.removeAt(indexOriginal)
         }
     }
 
-    override fun getItemCount() = lugares.size
+
+
+    // -------------------
+    // 🔍 Filtro de búsqueda
+    // -------------------
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(query: CharSequence?): FilterResults {
+                val filtro = query?.toString()?.lowercase(Locale.ROOT)?.trim() ?: ""
+                val resultados = if (filtro.isEmpty()) {
+                    lugares
+                } else {
+                    lugares.filter {
+                        it.nombre.lowercase(Locale.ROOT).contains(filtro) ||
+                                (it.descripcion?.lowercase(Locale.ROOT)?.contains(filtro) ?: false) ||
+                                it.pais.lowercase(Locale.ROOT).contains(filtro)
+                    }
+                }
+                val filterResults = FilterResults()
+                filterResults.values = resultados
+                return filterResults
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                lugaresFiltrados = (results?.values as? List<LugarTuristico>)?.toMutableList() ?: mutableListOf()
+                notifyDataSetChanged()
+            }
+        }
+    }
 }
-
-
-
-
-
-
-
