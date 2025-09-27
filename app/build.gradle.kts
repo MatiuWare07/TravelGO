@@ -61,6 +61,7 @@ dependencies {
     // ✅ Room: Runtime + KTX + kapt
     implementation(libs.androidx.room.runtime.android)
     implementation("androidx.room:room-ktx:2.6.1")
+    implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     kapt(libs.androidx.room.compiler)
 
     // ✅ Google Maps y Location Services
@@ -74,6 +75,9 @@ dependencies {
     // ✅ Glide (para cargar imágenes sin pedir permisos)
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
+
+    implementation ("org.mindrot:jbcrypt:0.4")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -9,12 +9,12 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
+import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.Overlay
-import android.view.MotionEvent
+import org.osmdroid.views.overlay.MapEventsOverlay
 
 class SelectLocationActivity : AppCompatActivity() {
 
@@ -25,7 +25,7 @@ class SelectLocationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inicializar configuración de osmdroid
+        // Configuración osmdroid
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
 
         setContentView(R.layout.activity_select_location)
@@ -37,39 +37,38 @@ class SelectLocationActivity : AppCompatActivity() {
 
         val mapController: IMapController = mapView.controller
         mapController.setZoom(12.0)
-        val madrid = GeoPoint(40.4168, -3.7038) // Madrid
-        mapController.setCenter(madrid)
+        mapController.setCenter(GeoPoint(40.4168, -3.7038)) // Madrid como inicio
 
-        // Overlay para detectar long press
-        val longPressOverlay = object : Overlay() {
-            override fun onLongPress(e: MotionEvent?, mapView: MapView?): Boolean {
-                if (e != null && mapView != null) {
-                    val projection = mapView.projection
-                    val geoPoint = projection.fromPixels(e.x.toInt(), e.y.toInt()) as GeoPoint
+        // Overlay para detectar taps/long presses
+        val eventsReceiver = object : MapEventsReceiver {
+            override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
+                // Ignoramos single tap
+                return false
+            }
 
-                    selectedPoint = geoPoint
+            override fun longPressHelper(p: GeoPoint?): Boolean {
+                if (p != null) {
+                    selectedPoint = p
 
                     // Eliminar marcador anterior
                     marker?.let { mapView.overlays.remove(it) }
 
                     // Crear nuevo marcador
                     marker = Marker(mapView).apply {
-                        position = geoPoint
+                        position = p
                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                         title = "Ubicación seleccionada"
                     }
 
                     mapView.overlays.add(marker)
                     mapView.invalidate()
-
-                    return true
                 }
-                return false
+                return true
             }
         }
-        mapView.overlays.add(longPressOverlay)
+        mapView.overlays.add(MapEventsOverlay(eventsReceiver))
 
-        // Botón confirmar ubicación
+        // Botón confirmar
         val btnConfirmar = findViewById<FloatingActionButton>(R.id.btnConfirmarUbicacion)
         btnConfirmar.setOnClickListener {
             if (selectedPoint != null) {
@@ -80,8 +79,13 @@ class SelectLocationActivity : AppCompatActivity() {
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             } else {
-                Toast.makeText(this, "Selecciona una ubicación con un click largo en el mapa", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Mantené presionado en el mapa para seleccionar una ubicación",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
 }
+

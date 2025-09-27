@@ -14,6 +14,10 @@ import com.example.travelgo.Adapter.LugarAdapter
 import com.example.travelgo.DataBase.AppDatabase
 import com.example.travelgo.DataBase.Entidades.Categoria
 import com.example.travelgo.DataBase.Entidades.LugarTuristico
+import com.example.travelgo.DataBase.Entidades.Rol
+import com.example.travelgo.Auth.SessionManager
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,13 +28,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: LugarAdapter
     private lateinit var db: AppDatabase
     private val listaLugares = mutableListOf<LugarTuristico>()
+    private var rolUsuario: Rol? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // 🔹 Vincular el toolbar como ActionBar
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         recyclerView = findViewById(R.id.recyclerViewLugares)
@@ -38,8 +42,12 @@ class MainActivity : AppCompatActivity() {
 
         db = AppDatabase.getInstance(applicationContext)
 
+        // 🔹 Rol del usuario desde sesión
+        rolUsuario = SessionManager(this).obtenerRol()
+
         adapter = LugarAdapter(
-            listaLugares,
+            lugares = listaLugares,
+            rol = rolUsuario ?: Rol.CLIENTE,
             onItemClick = { lugar ->
                 val intent = Intent(this, LugarDetalleActivity::class.java).apply {
                     putExtra("nombre", lugar.nombre)
@@ -50,7 +58,7 @@ class MainActivity : AppCompatActivity() {
                     putExtra("imagenResId", lugar.imagenResId ?: -1)
                     putExtra("imagenUri", lugar.imagenUri)
                 }
-                startActivity(intent) 
+                startActivity(intent)
             },
             onDeleteClick = { lugar ->
                 AlertDialog.Builder(this)
@@ -61,9 +69,7 @@ class MainActivity : AppCompatActivity() {
                             withContext(Dispatchers.IO) {
                                 db.lugarTuristicoDao().eliminarLugar(lugar)
                             }
-                            runOnUiThread {
-                                adapter.eliminarConAnimacion(lugar)
-                            }
+                            adapter.eliminarConAnimacion(lugar)
                         }
                     }
                     .setNegativeButton("No", null)
@@ -73,9 +79,18 @@ class MainActivity : AppCompatActivity() {
 
         recyclerView.adapter = adapter
 
-        lifecycleScope.launch {
-            cargarLugaresDesdeBD()
+        // 🔹 FAB solo para admin
+        val fabAgregar = findViewById<FloatingActionButton>(R.id.fabAgregarLugar)
+        if (rolUsuario == Rol.ADMIN) {
+            fabAgregar.show()
+            fabAgregar.setOnClickListener {
+                startActivity(Intent(this, AddLugarActivity::class.java))
+            }
+        } else {
+            fabAgregar.hide()
         }
+
+        lifecycleScope.launch { cargarLugaresDesdeBD() }
     }
 
     override fun onResume() {
@@ -83,9 +98,10 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch { cargarLugaresDesdeBD() }
     }
 
-    // 🔹 Menú de filtros
+    // 🔹 Menú del Toolbar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_filtros, menu)
+        menuInflater.inflate(R.menu.menu_main, menu)
 
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as? androidx.appcompat.widget.SearchView
@@ -119,6 +135,19 @@ class MainActivity : AppCompatActivity() {
             R.id.filtro_pais -> {
                 mostrarDialogoFiltroPais()
             }
+            R.id.action_refresh -> {
+                lifecycleScope.launch { cargarLugaresDesdeBD() }
+                Toast.makeText(this, "Lista actualizada", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            R.id.action_logout -> {
+                SessionManager(this).cerrarSesion()
+                val intent = Intent(this, LoginActivity::class.java) // 👈 cambio a InicioActivity
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -146,9 +175,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun actualizarLista(lugares: List<LugarTuristico>) {
-        runOnUiThread {
-            adapter.actualizarLista(lugares)
-        }
+        adapter.actualizarLista(lugares)
     }
 
     // 🔹 Diálogo selección de país
@@ -159,23 +186,19 @@ class MainActivity : AppCompatActivity() {
             }
 
             if (paises.isEmpty()) {
-                runOnUiThread {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "No hay países disponibles en la base de datos",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+                Toast.makeText(
+                    this@MainActivity,
+                    "No hay países disponibles en la base de datos",
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
-                runOnUiThread {
-                    AlertDialog.Builder(this@MainActivity)
-                        .setTitle("Seleccioná un país")
-                        .setItems(paises.toTypedArray()) { _, which ->
-                            val paisSeleccionado = paises[which]
-                            lifecycleScope.launch { cargarLugaresPorPais(paisSeleccionado) }
-                        }
-                        .show()
-                }
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Seleccioná un país")
+                    .setItems(paises.toTypedArray()) { _, which ->
+                        val paisSeleccionado = paises[which]
+                        lifecycleScope.launch { cargarLugaresPorPais(paisSeleccionado) }
+                    }
+                    .show()
             }
         }
     }
@@ -188,23 +211,19 @@ class MainActivity : AppCompatActivity() {
             }
 
             if (categorias.isEmpty()) {
-                runOnUiThread {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "No hay categorías disponibles en la base de datos",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+                Toast.makeText(
+                    this@MainActivity,
+                    "No hay categorías disponibles en la base de datos",
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
-                runOnUiThread {
-                    AlertDialog.Builder(this@MainActivity)
-                        .setTitle("Seleccioná una categoría")
-                        .setItems(categorias.map { it.name }.toTypedArray()) { _, which ->
-                            val categoriaSeleccionada = categorias[which]
-                            lifecycleScope.launch { cargarLugaresPorCategoria(categoriaSeleccionada) }
-                        }
-                        .show()
-                }
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Seleccioná una categoría")
+                    .setItems(categorias.map { it.name }.toTypedArray()) { _, which ->
+                        val categoriaSeleccionada = categorias[which]
+                        lifecycleScope.launch { cargarLugaresPorCategoria(categoriaSeleccionada) }
+                    }
+                    .show()
             }
         }
     }

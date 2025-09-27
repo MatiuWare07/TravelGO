@@ -10,16 +10,18 @@ import com.bumptech.glide.Glide
 import com.example.travelgo.DataBase.AppDatabase
 import com.example.travelgo.DataBase.Entidades.Categoria
 import com.example.travelgo.DataBase.Entidades.LugarTuristico
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
 class AddLugarActivity : AppCompatActivity() {
 
     private lateinit var etNombre: EditText
-    private lateinit var spCategoria: Spinner   // 👈 Spinner en lugar de EditText
+    private lateinit var spCategoria: Spinner
     private lateinit var etDescripcion: EditText
-    private lateinit var etPais: EditText       // 👈 Agregar input para país
+    private lateinit var etPais: EditText
     private lateinit var imgPreview: ImageView
     private lateinit var btnSeleccionarImagen: Button
     private lateinit var tvCoordenadas: TextView
@@ -49,9 +51,8 @@ class AddLugarActivity : AppCompatActivity() {
         btnSeleccionarUbicacion = findViewById(R.id.btnSeleccionarUbicacion)
         btnGuardarLugar = findViewById(R.id.btnGuardarLugar)
 
-        // 🔹 SOLO mostrar Museo, Parque y Ciudad
+        // 🔹 Configuración del Spinner con solo estas categorías
         val categoriasDisponibles = listOf("Museo", "Parque", "Ciudad")
-
         spCategoria.adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
@@ -85,7 +86,10 @@ class AddLugarActivity : AppCompatActivity() {
                         FileOutputStream(file).use { output -> input.copyTo(output) }
                     }
                     imagenUri = file.absolutePath
-                    Glide.with(this).load(file).placeholder(R.drawable.placeholder).into(imgPreview)
+                    Glide.with(this)
+                        .load(file)
+                        .placeholder(R.drawable.placeholder)
+                        .into(imgPreview)
                 }
 
                 REQUEST_LOCATION_PICK -> {
@@ -99,13 +103,18 @@ class AddLugarActivity : AppCompatActivity() {
 
     private fun guardarLugar() {
         val nombre = etNombre.text.toString().trim()
-        val categoriaSeleccionada = spCategoria.selectedItem.toString().uppercase()
-        val categoria = Categoria.valueOf(categoriaSeleccionada)
+        val categoriaSeleccionada = spCategoria.selectedItem.toString()
+        val categoria = when (categoriaSeleccionada) {
+            "Museo" -> Categoria.MUSEO
+            "Parque" -> Categoria.PARQUE
+            "Ciudad" -> Categoria.CIUDAD
+            else -> Categoria.CIUDAD
+        }
         val descripcion = etDescripcion.text.toString().trim()
         val pais = etPais.text.toString().trim()
 
-        if (nombre.isBlank() || pais.isBlank() || latitud == null || longitud == null) {
-            Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
+        if (nombre.isBlank() || descripcion.isBlank() || pais.isBlank() || latitud == null || longitud == null) {
+            Toast.makeText(this, "Completa todos los campos obligatorios", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -120,12 +129,13 @@ class AddLugarActivity : AppCompatActivity() {
         )
 
         lifecycleScope.launch {
-            val db = AppDatabase.getInstance(applicationContext)
-            db.lugarTuristicoDao().insertarLugar(nuevoLugar)
-            runOnUiThread {
-                Toast.makeText(this@AddLugarActivity, "Lugar guardado", Toast.LENGTH_SHORT).show()
-                finish()
+            withContext(Dispatchers.IO) {
+                val db = AppDatabase.getInstance(applicationContext)
+                db.lugarTuristicoDao().insertarLugar(nuevoLugar)
             }
+            Toast.makeText(this@AddLugarActivity, "Lugar guardado correctamente", Toast.LENGTH_SHORT).show()
+            finish()
         }
     }
 }
+

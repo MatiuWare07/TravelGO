@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- EditText redondeado -->
+    <style name="CustomEditText" parent="Widget.Material3.TextInputEditText.FilledBox">
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+    </style>
+
+    <!-- Botón principal -->
+    <style name="CustomButton" parent="Widget.Material3.Button">
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+    </style>
+
+</resources>
+

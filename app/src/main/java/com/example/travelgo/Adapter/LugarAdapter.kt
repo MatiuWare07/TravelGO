@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.travelgo.DataBase.Entidades.LugarTuristico
+import com.example.travelgo.DataBase.Entidades.Rol
 import com.example.travelgo.R
 import java.io.File
 import android.widget.Filter
@@ -16,10 +17,10 @@ import java.util.*
 
 class LugarAdapter(
     private val lugares: MutableList<LugarTuristico>,
+    private val rol: Rol,
     private val onItemClick: (LugarTuristico) -> Unit,
     private val onDeleteClick: (LugarTuristico) -> Unit
 ) : RecyclerView.Adapter<LugarAdapter.LugarViewHolder>(), Filterable {
-
 
     private var lugaresFiltrados: MutableList<LugarTuristico> = ArrayList(lugares)
 
@@ -38,10 +39,10 @@ class LugarAdapter(
     override fun onBindViewHolder(holder: LugarViewHolder, position: Int) {
         val lugar = lugaresFiltrados[position]
 
-
         holder.txtNombreItem.text = lugar.nombre
         holder.txtDescripcionItem.text = lugar.descripcion ?: ""
 
+        // 🔹 Cargar imagen
         if (!lugar.imagenUri.isNullOrEmpty()) {
             val file = File(lugar.imagenUri!!)
             Glide.with(holder.itemView.context)
@@ -58,10 +59,16 @@ class LugarAdapter(
             holder.imgItem.setImageResource(R.drawable.placeholder)
         }
 
+        // 🔹 Acción al hacer click en el item → abre el detalle
         holder.itemView.setOnClickListener { onItemClick(lugar) }
-        holder.itemView.setOnClickListener { onItemClick(lugar) }
-        holder.btnEliminar.setOnClickListener { onDeleteClick(lugar) }
 
+        // 🔹 Mostrar / ocultar botón según rol
+        if (rol == Rol.ADMIN) {
+            holder.btnEliminar.visibility = View.VISIBLE
+            holder.btnEliminar.setOnClickListener { onDeleteClick(lugar) }
+        } else {
+            holder.btnEliminar.visibility = View.GONE
+        }
     }
 
     override fun getItemCount() = lugaresFiltrados.size
@@ -79,14 +86,11 @@ class LugarAdapter(
             lugaresFiltrados.removeAt(indexFiltrado)
             notifyItemRemoved(indexFiltrado)
         }
-
         val indexOriginal = lugares.indexOf(lugar)
         if (indexOriginal != -1) {
             lugares.removeAt(indexOriginal)
         }
     }
-
-
 
     // -------------------
     // 🔍 Filtro de búsqueda

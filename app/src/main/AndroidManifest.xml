@@ -12,29 +12,20 @@
 
     <application
         android:allowBackup="true"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TravelGO"
-        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:theme="@style/Theme.TravelGo"
         tools:replace="android:appComponentFactory"
         tools:targetApi="31">
 
-        <!-- Configuración para osmdroid -->
-        <meta-data
-            android:name="org.osmdroid.config"
-            android:value="osmdroid_config" />
-
+        <!-- Login será la pantalla inicial -->
         <activity
-            android:name=".SelectLocationActivity"
-            android:exported="true" />
-
-        <!-- Pantalla principal -->
-        <activity
-            android:name=".MainMenuActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,25 +33,25 @@
             </intent-filter>
         </activity>
 
-        <!-- Pantalla para agregar lugares -->
-        <activity
-            android:name=".AddLugarActivity"
-            android:exported="true" />
+        <!-- Otras activities, sin MAIN ni LAUNCHER -->
+        <activity android:name=".RegisterActivity" android:exported="true" />
+        <activity android:name=".InicioActivity" android:exported="true" />
+        <activity android:name=".MainMenuActivity" android:exported="true" />
+        <activity android:name=".GestionUsuariosActivity" android:exported="true" />
+        <activity android:name=".SelectLocationActivity" android:exported="true" />
+        <activity android:name=".AddLugarActivity" android:exported="true" />
+        <activity android:name=".MainActivity" android:exported="true" />
+        <activity android:name=".LugarDetalleActivity" android:exported="true" />
 
-        <!-- Lista de lugares -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true" />
-
-        <!-- Detalle del lugar -->
-        <activity
-            android:name=".LugarDetalleActivity"
-            android:exported="true" />
-
-        <meta-data android:name="osmdroid.basePath" android:value="osmdroid" />
-        <meta-data android:name="osmdroid.cachePath" android:value="osmdroid/cache" />
-
+        <!-- Configuración para osmdroid -->
+        <meta-data
+            android:name="org.osmdroid.config"
+            android:value="osmdroid_config" />
+        <meta-data
+            android:name="osmdroid.basePath"
+            android:value="osmdroid" />
+        <meta-data
+            android:name="osmdroid.cachePath"
+            android:value="osmdroid/cache" />
     </application>
-
 </manifest>
-

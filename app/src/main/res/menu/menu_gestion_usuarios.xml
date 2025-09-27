@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Acción agregar usuario -->
+    <item
+        android:id="@+id/action_agregar_usuario"
+        android:title="Agregar usuario"
+        android:icon="@drawable/ic_add"
+        app:showAsAction="ifRoom|withText" />
+
+    <!-- Acción filtrar usuarios (opcional) -->
+    <item
+        android:id="@+id/action_filtrar"
+        android:title="Filtrar"
+        android:icon="@drawable/ic_filter_list"
+        app:showAsAction="ifRoom" />
+
+</menu>
