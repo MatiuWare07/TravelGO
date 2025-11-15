@@ -1,67 +1,61 @@
 # TravelGo  
 
-TravelGo es una aplicación Android desarrollada en **Kotlin** que permite **gestionar usuarios y visualizar lugares turísticos de interés**.  
-Nació como un proyecto autodidacta para poner en práctica conocimientos en **desarrollo Android**.  
-
+TravelGo is an Android application developed in Kotlin that allows you to manage users and view tourist attractions.
+It began as a self-taught project to practice Android development skills.
 ---
 
-## 🚀 Funcionalidades actuales
+## 🚀 Current Features
 
-### 🔑 Autenticación y gestión de usuarios
-- Registro de nuevos usuarios (clientes) con contraseñas **hasheadas** para mayor seguridad.
-- Inicio de sesión con verificación contra la base de datos.
-- Gestión de usuarios por parte del administrador:
-  - Crear clientes desde el panel de administración.
-  - Editar nombre y correo de usuarios existentes.
-  - Eliminar usuarios (con restricciones de seguridad: no se puede eliminar al admin ni al usuario logueado).
-- Mantenimiento de la sesión activa mediante `SessionManager`.
+### 🔑 Authentication and User Management
+- Registration of new users (clients) with hashed passwords for added security.
+- Login with database-verified credentials.
+- User management available to the admin:
+  - Create clients from the admin panel.
+  - Edit the name and email of existing users.
+  - Delete users (with security restrictions: the admin and the currently logged-in user cannot be deleted).
+- Session persistence using `SessionManager`.
 
-### 🗺️ Lugares turísticos
-- Lista de lugares almacenados en la base de datos local (**Room**).
-- Visualización de imágenes, descripción y detalles de cada lugar.
-- Opción para agregar lugares turísticos manualmente desde un formulario.
-- Pantalla de detalle de lugar con información ampliada.
-- Integración de mapas (con **OSMDroid** para OpenStreetMap, además de soporte para Google Maps en emuladores).
+### 🗺️ Tourist Places
+- List of locations stored in the local database (Room).
+- Display of images, descriptions, and detailed information for each place.
+- Option to manually add new tourist spots through a form.
+- Dedicated detail screen with extended information.
+- Map integration (OSMDroid for OpenStreetMap, plus Google Maps support in emulators).
 
-### 📱 UI y experiencia de usuario
-- **RecyclerView** con adapter para mostrar listas de usuarios y lugares turísticos.
-- **SwipeRefreshLayout** para recargar listas.
+### 📱 UI and User Experience
+- **RecyclerView** with an adapter to display user and tourist place lists.
+- **SwipeRefreshLayout** to refresh lists.
 - Uso de **Material Design Components** (Toolbar, Buttons, Dialogs).
-- Pantallas separadas para login, registro, inicio, gestión de usuarios, detalle de lugares, etc.
+- Separate screens for login, registration, home, user management, place details, etc.
 
 ---
 
-## 🛠️ Tecnologías utilizadas
+## 🛠️ Technologies Used
 
-- **Lenguaje**: Kotlin  
+- **Language**: Kotlin  
 - **Base de datos local**: Room (DAO, entidades y migraciones)  
 - **UI / UX**:  
   - RecyclerView  
   - Material Design Components  
   - SwipeRefreshLayout  
-- **Mapas**:  
+- **Maps**:  
   - OSMDroid (OpenStreetMap)  
   - Google Maps (compatibilidad en emuladores)  
 - **Android Jetpack**:  
   - Lifecycle  
   - ViewModel (parcial)  
   - Coroutines + LiveData  
-- **Seguridad**:  
-  - Hash de contraseñas (`HashUtil`)  
-  - Control de sesión (`SessionManager`)  
+- **Security**:  
+  - Password hashing (`HashUtil`)  
+  - Session control (`SessionManager`)  
 
 ---
 
-## 📌 Estado del proyecto
+## 📌 Project Status
 
-- ✅ Gestión completa de usuarios (registro, login, administración de clientes).  
-- ✅ Persistencia local con Room funcionando estable.  
-- ✅ Integración de mapas (OSMDroid y Google Maps).  
-- ✅ Lugares turísticos con detalle, imágenes y descripciones.  
+- ✅ Full user management (registration, login, client administration).
+- ✅ Stable local persistence with Room.
+- ✅ Map integration (OSMDroid and Google Maps).
+- ✅ Tourist places with details, images, and descriptions.
 
-🛠️ **En desarrollo / próximos pasos**:  
-- Sección de favoritos para usuarios.  
-- Filtros y categorías en los lugares turísticos.  
-- Mejoras en UI (animaciones, dark mode).  
-- Migración de ciertas funciones a ViewModel y uso de Flow.  
 
